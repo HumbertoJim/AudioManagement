@@ -4,9 +4,9 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - managerPrefab: {fileID: 614637416594537384, guid: 1ed8802e7b0e1f84885bddf801f2cdae, type: 3}
-  - musicPrefab: {fileID: 596016127565941972, guid: 31c622840c3ff274d9fe505f56657865, type: 3}
-  - soundPrefab: {fileID: 1965479865318903605, guid: f75cba8bf9c734e4ebedad62551aba3f, type: 3}
+  - defaultMusic: {fileID: 8300000, guid: 600a9e90e24acf148bc5fe1726067568, type: 3}
+  - mainMusic: {instanceID: 0}
+  - currentMusic: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

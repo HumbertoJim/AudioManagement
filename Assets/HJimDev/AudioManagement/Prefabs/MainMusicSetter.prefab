@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 870933538482182030}
   - component: {fileID: 6955454343519214483}
   m_Layer: 0
-  m_Name: AudioSettings
+  m_Name: MainMusicSetter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,13 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25e811382f6aab4ead35485d53405b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  musicsFolder: Musics
-  soundsFolder: Sounds
-  musicPrefab: {fileID: 596016127565941972, guid: 31c622840c3ff274d9fe505f56657865, type: 3}
-  soundPrefab: {fileID: 1965479865318903605, guid: f75cba8bf9c734e4ebedad62551aba3f, type: 3}
-  maxSoundInstances: 10
-  soundVolume: 1
-  musicVolume: 1
-  timeToUpDownMusicVolume: 3
-  intervalsToUpDownMusicVolume: 15
-  mainMusic: {fileID: 8300000, guid: 600a9e90e24acf148bc5fe1726067568, type: 3}
+  defaultMusic: {fileID: 8300000, guid: 600a9e90e24acf148bc5fe1726067568, type: 3}

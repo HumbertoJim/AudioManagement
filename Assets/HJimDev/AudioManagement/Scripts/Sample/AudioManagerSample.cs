@@ -9,6 +9,8 @@ namespace AudioManagement
     {
         public class AudioManagerSample : MonoBehaviour
         {
+            public AudioClip[] musics;
+
             public void PlaySound()
             {
                 AudioManager.DefaultManager.PlaySound("explosion");
@@ -16,15 +18,14 @@ namespace AudioManagement
 
             public void PlayMainMusic()
             {
-                AudioManager.DefaultManager.PlayMainMusic();
+                AudioManager.DefaultManager.PlayMusicMain();
             }
 
             public void PlaySecondaryMusic()
             {
-                string[] musics = { "Music01", "Music02", "Music03", "Music04", "Music05" };
                 int index = Random.Range(0, musics.Length);
-                Debug.Log("Playing " + musics[index]);
-                AudioManager.DefaultManager.PlaySecondaryMusic(musics[index]);
+                Debug.Log("Playing " + musics[index].name);
+                AudioManager.DefaultManager.PlayMusic(musics[index], MusicType.Secondary);
             }
         }
     }

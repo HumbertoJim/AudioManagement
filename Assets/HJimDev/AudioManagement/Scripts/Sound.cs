@@ -9,36 +9,35 @@ namespace AudioManagement
     public class Sound : MonoBehaviour
     {
         AudioSource audioSource;
-        bool infoFixed;
-        bool played;
+        bool initialized;
+        bool destroy;
 
-        void SetInformation()
+        public void Initialize(AudioClip clip)
         {
-            if (!infoFixed)
+            if (!initialized)
             {
-                infoFixed = true;
+                initialized = true;
+                destroy = true;
                 audioSource = GetComponent<AudioSource>();
+                audioSource.volume = AudioManager.DefaultManager.SoundVolume;
+                audioSource.clip = clip;
                 audioSource.loop = false;
                 audioSource.playOnAwake = false;
             }
         }
 
-        public void Play(AudioClip clip)
+        public void Play()
         {
-            SetInformation();
-            played = true;
-            audioSource.volume = AudioManager.DefaultManager.Settings.SoundVolume;
-            audioSource.clip = clip;
             audioSource.Play();
         }
 
         void Update()
         {
-            if(played)
+            if(destroy)
             {
                 if(!audioSource.isPlaying)
                 {
-                    played = false;
+                    destroy = false;
                     Destroy(gameObject);
                 }
             }

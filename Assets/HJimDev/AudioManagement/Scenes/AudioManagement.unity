@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -958,7 +957,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1631614092
+--- !u!1001 &1838049302
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -967,11 +966,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 614637416594537384, guid: 1ed8802e7b0e1f84885bddf801f2cdae, type: 3}
       propertyPath: m_Name
-      value: AudioSettings
+      value: MainMusicSetter
+      objectReference: {fileID: 0}
+    - target: {fileID: 614637416594537384, guid: 1ed8802e7b0e1f84885bddf801f2cdae, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 870933538482182030, guid: 1ed8802e7b0e1f84885bddf801f2cdae, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 870933538482182030, guid: 1ed8802e7b0e1f84885bddf801f2cdae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1141,7 +1144,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1987410278
 GameObject:
@@ -1219,6 +1222,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0

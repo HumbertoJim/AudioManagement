@@ -7,124 +7,239 @@ namespace AudioManagement
 {
     public class AudioManager : MonoBehaviour
     {
-        private static AudioManager manager;
-        
+        [Header("Volume")]
+        [SerializeField] [Range(0f, 1f)] float soundVolume = 1;
+        [SerializeField] [Range(0f, 1f)] float musicVolume = 1;
+        [SerializeField] [Range(0.1f, 10)] float timeToUpDownMusicVolume = 3;
+        [SerializeField] [Range(1, 30)] int intervalsToUpDownMusicVolume = 15;
+        [SerializeField] [Range(1, 30)] int maxSoundInstances = 20;
+
+        [Header("Resources Folder")]
+        [SerializeField] string musicsFolder = "Musics";
+        [SerializeField] string soundsFolder = "Sounds";
+
+        GameObject musicPrefab;
+        GameObject soundPrefab;
+
         Music mainMusic;
         Music currentMusic;
         Transform soundContainer;
-        bool infoFixed;
-        AudioSettings settings;
+
+        private static AudioManager defaultManager;
+        bool initialized;
 
         public static AudioManager DefaultManager
         {
             get
             {
-                if (!manager)
+                if (!defaultManager)
                 {
-                    GameObject instance = new("MusicManager");
-                    manager = instance.AddComponent<AudioManager>();
-                    DontDestroyOnLoad(instance);
+                    GameObject instance = new("AudioManager");
+                    DefaultManager = instance.AddComponent<AudioManager>();
                 }
-                return manager;
+                return defaultManager;
             }
-        }
-
-        public AudioSettings Settings {
-            get { return settings; }
-            set {
-                settings = value;
-                if (!infoFixed)
-                {
-                    infoFixed = true;
-                    GameObject container = new("SoundContainer");
-                    container.transform.SetParent(transform);
-                    container.transform.localPosition = Vector3.zero;
-                    soundContainer = container.transform;
-                }
-            }
-        }
-
-        public void PlayMainMusic(string music)
-        {
-            AudioClip clip = Resources.Load<AudioClip>(JoinPaths(Settings.MusicsFolder, music));
-            PlayMainMusic(clip);
-        }
-
-        public void PlayMainMusic()
-        {
-            if (mainMusic) PlayMainMusic(mainMusic.Clip);
-        }
-
-        public void PlayMainMusic(AudioClip clip)
-        {
-            if (infoFixed)
+            private set
             {
-                if (!mainMusic)
+                defaultManager = value;
+                defaultManager.Initialize();
+            }
+        }
+
+        GameObject MusicPrefab { get { return musicPrefab; } }
+
+        GameObject SoundPrefab { get { return soundPrefab; } }
+
+        public float MusicVolume
+        {
+            get { return musicVolume; }
+            set { musicVolume = value > 1f ? 1f : (value < 0f ? 0f : value); }
+        }
+
+        public float SoundVolume
+        {
+            get { return soundVolume; }
+            set { soundVolume = value > 1f ? 1f : (value < 0f ? 0f : value); }
+        }
+
+        public float TimeToUpDownMusicVolume
+        {
+            get { return timeToUpDownMusicVolume; }
+            set { timeToUpDownMusicVolume = value < 0.1f ? 0.1f : value; }
+        }
+
+        public int IntervalsToUpDownMusicVolume
+        {
+            get { return intervalsToUpDownMusicVolume; }
+            set { intervalsToUpDownMusicVolume = value < 1 ? 1 : value; }
+        }
+
+        private void Awake()
+        {
+            if (defaultManager && defaultManager != this)
+            {
+                DestroyImmediate(gameObject);
+            }
+            else if (!defaultManager)
+            {
+                DefaultManager = this;
+            }
+        }
+
+        void Initialize()
+        {
+            if (!initialized)
+            {
+                initialized = true;
+                GameObject container = new("SoundContainer");
+                container.transform.SetParent(defaultManager.transform);
+                container.transform.localPosition = Vector3.zero;
+                defaultManager.soundContainer = container.transform;
+
+                GameObject musicPrefab = new("Music");
+                musicPrefab.transform.SetParent(defaultManager.transform);
+                musicPrefab.transform.localPosition = Vector3.zero;
+                musicPrefab.AddComponent<AudioSource>();
+                musicPrefab.AddComponent<Music>();
+                musicPrefab.SetActive(false);
+                defaultManager.musicPrefab = musicPrefab;
+
+                GameObject soundPrefab = new("Sound");
+                soundPrefab.transform.SetParent(defaultManager.transform);
+                soundPrefab.transform.localPosition = Vector3.zero;
+                soundPrefab.AddComponent<AudioSource>();
+                soundPrefab.AddComponent<Sound>();
+                soundPrefab.SetActive(false);
+                defaultManager.soundPrefab = soundPrefab;
+
+                DontDestroyOnLoad(defaultManager.gameObject);
+            }
+        }
+
+        public Music InstantiateMusic(string music, MusicType type)
+        {
+            AudioClip clip = Resources.Load<AudioClip>(JoinPaths(musicsFolder, music));
+            return InstantiateMusic(clip, type);
+        }
+
+        public Music InstantiateMusic(AudioClip clip, MusicType type)
+        {
+            Music music = Instantiate(MusicPrefab, transform).GetComponent<Music>();
+            music.Initialize(clip, type);
+            music.gameObject.SetActive(true);
+            return music;
+        }
+
+        public Sound InstantiateSound(string sound)
+        {
+            AudioClip clip = Resources.Load<AudioClip>(JoinPaths(soundsFolder, sound));
+            return InstantiateSound(clip);
+        }
+
+        public Sound InstantiateSound(AudioClip clip)
+        {
+            Sound sound = Instantiate(SoundPrefab, transform).GetComponent<Sound>();
+            sound.Initialize(clip);
+            sound.gameObject.SetActive(true);
+            return sound;
+        }
+
+        public void PlayMusicMain()
+        {
+            PlayMusic(mainMusic);
+        }
+
+        public void PlayMusic(string music, MusicType type)
+        {
+            PlayMusic(InstantiateMusic(music, type));
+        }
+
+        public void PlayMusic(AudioClip music, MusicType type)
+        {
+            PlayMusic(InstantiateMusic(music, type));
+        }
+
+        public void PlayMusic(Music music)
+        {
+            if (!music)
+            {
+                if (currentMusic)
                 {
-                    mainMusic = Instantiate(Settings.MusicPrefab, transform).GetComponent<Music>();
-                    currentMusic = mainMusic;
-                    currentMusic.Play(clip);
-                }
-                else if (mainMusic.Clip.name == clip.name)
-                {
-                    if (currentMusic != mainMusic)
+                    if (currentMusic.Type == MusicType.Main)
                     {
-                        if (currentMusic) currentMusic.Destroy();
-                        currentMusic = mainMusic;
-                        currentMusic.Play();
+                        currentMusic.Pause();
+                    }
+                    else if (currentMusic.Type == MusicType.Secondary)
+                    {
+                        currentMusic.Destroy();
+                    }
+                    else
+                    {
+                        Destroy(currentMusic.gameObject);
                     }
                 }
-                else
-                {
-                    if (currentMusic != mainMusic)
-                    {
-                        Destroy(mainMusic.gameObject);
-                    }
-                    currentMusic.Destroy();
-                    mainMusic = Instantiate(Settings.MusicPrefab, transform).GetComponent<Music>();
-                    currentMusic = mainMusic;
-                    currentMusic.Play(clip);
-                }
+                currentMusic = music;
+                return;
             }
-        }
-
-        public void PlaySecondaryMusic(string music)
-        {
-            AudioClip clip = Resources.Load<AudioClip>(JoinPaths(Settings.MusicsFolder, music));
-            PlaySecondaryMusic(clip);
-        }
-
-        public void PlaySecondaryMusic(AudioClip clip)
-        {
-            if (infoFixed)
+            if (music == currentMusic)
             {
-                if (!currentMusic || currentMusic.Clip.name != clip.name)
+                if (currentMusic && !currentMusic.IsPlaying)
                 {
-                    if (mainMusic && currentMusic == mainMusic) currentMusic.Pause();
-                    else if (currentMusic) currentMusic.Destroy();
-                    currentMusic = Instantiate(Settings.MusicPrefab, transform).GetComponent<Music>();
-                    currentMusic.Play(clip);
+                    currentMusic.Play();
+                }
+                return;
+            }
+            if (music.Type == MusicType.Main)
+            {
+                if (currentMusic) currentMusic.Destroy();
+                if (music != mainMusic)
+                {
+                    if (mainMusic) Destroy(mainMusic.gameObject);
+                    mainMusic = music;
                 }
             }
+            else if (music.Type == MusicType.Secondary)
+            {
+                if (currentMusic)
+                {
+                    if (currentMusic.Type == MusicType.Main)
+                    {
+                        currentMusic.Pause();
+                    }
+                    else if (currentMusic.Type == MusicType.Secondary)
+                    {
+                        currentMusic.Destroy();
+                    }
+                    else
+                    {
+                        Destroy(currentMusic.gameObject);
+                    }
+                }
+            }
+            currentMusic = music;
+            currentMusic.Play();
         }
 
         public void PlaySound(string sound)
         {
-            if (soundContainer.childCount < Settings.MaxSoundInstances)
-            {
-                AudioClip clip = Resources.Load<AudioClip>(JoinPaths(Settings.SoundsFolder, sound));
-                PlaySound(clip);
-            }   
+            PlaySound(InstantiateSound(sound));
         }
 
-        public void PlaySound(AudioClip clip)
+        public void PlaySound(AudioClip sound)
         {
-            if (infoFixed)
+            PlaySound(InstantiateSound(sound));
+        }
+
+        public void PlaySound(Sound sound)
+        {
+            if (soundContainer.childCount < maxSoundInstances)
             {
-                if (soundContainer.childCount < Settings.MaxSoundInstances)
-                {
-                    Instantiate(Settings.SoundPrefab, soundContainer).GetComponent<Sound>().Play(clip);
-                }
+                sound.transform.SetParent(soundContainer);
+                sound.Play();
+            }
+            else
+            {
+                Destroy(sound.gameObject);
             }
         }
 
